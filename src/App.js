@@ -22,9 +22,11 @@ function App() {
   const [input, setInput] = useState('');
   const [sanitizedInput, setSanitizedInput] = useState('');
   const [answer, setAnswer] = useState('');
+  // const [selectedButton, setSelectedButton] = useState('Factor');
 
   const sanitizeInput = (fetchInput) => {
     let newInput = '';
+
     for (let i = 0; i < fetchInput.length; i++) {
       if (fetchInput[i] === ' ') {
         // Do nothing
@@ -44,7 +46,7 @@ function App() {
     }
 
     setSanitizedInput(newInput);
-    fetching(newInput)
+    fetching(newInput);
   }
 
   const fetching = (fetchedInput) => {
@@ -82,6 +84,12 @@ function App() {
     setInput(event.target.value);
   }
 
+  const handleFactorClick = (event) => {
+    // event.preventDefault();
+    // console.log(event.target.value);
+    // To Do
+  }
+
   return (
     <div className="App">
       <CssBaseline />
@@ -103,9 +111,10 @@ function App() {
       </AppBar>
       <Container maxWidth="md" sx={{ marginBottom: '300px' }}>
 
-        <Button variant="contained" sx={{ fontWeight: 'bold', background: 'black' }}>Factor</Button>
-        <Button variant="contained" disabled sx={{ margin: '30px 5px', fontWeight: 'bold'}}>Derivative</Button>
-        <Button variant="contained" disabled sx={{ fontWeight: 'bold' }}>Integral</Button>
+      
+        <Button variant="contained" sx={{ fontWeight: 'bold', background: 'black' }} value="Factor">Factor</Button>
+        <Button variant="contained" disabled sx={{ margin: '30px 5px', fontWeight: 'bold'}} value="Derivative">Derivative</Button>
+        <Button variant="contained" disabled sx={{ fontWeight: 'bold' }} value="Integral">Integral</Button>
 
         <Container maxWidth="md"></Container>
         
@@ -148,7 +157,7 @@ function App() {
                     component="h2" 
                     sx={{
                       fontWeight: 'bold',
-                    }}>{answer === 'nil' ? 'Equation isn\'t valid. Please try again.' : answer }
+                    }}>{answer === 'nil' ? 'Equation isn\'t valid. Please try another.' : answer }
                 </Typography>
               </React.Fragment>
             ) : ''
