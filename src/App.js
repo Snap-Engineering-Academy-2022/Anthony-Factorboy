@@ -1,114 +1,169 @@
-import AppBar from '@mui/material/AppBar';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardHeader from '@mui/material/CardHeader';
-import CardMedia from '@mui/material/CardMedia';
+import React, { useState } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
-import Grid from '@mui/material/Grid';
-import Toolbar from '@mui/material/Toolbar';
+import AppBar from '@mui/material/AppBar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Grid from '@mui/material/Grid';
+import Link from '@mui/material/Link';
 import './App.css';
-// import characters from './protagonists.json'
+
+const FACTORURL = 'https://newton.now.sh/api/v2/factor';
+const DERIVATIVEURL = 'https://newton.now.sh/api/v2/derive';
+const INTEGRATIONURL = 'https://newton.now.sh/api/v2/integrate';
+
+const requestOptions = {
+  method: 'GET',
+  redirect: 'follow'
+};
 
 function App() {
+  const [input, setInput] = useState('');
+  const [sanitizedInput, setSanitizedInput] = useState('');
+  const [answer, setAnswer] = useState('');
+
+  const sanitizeInput = (fetchInput) => {
+    let newInput = '';
+    for (let i = 0; i < fetchInput.length; i++) {
+      if (fetchInput[i] === ' ') {
+        // Do nothing
+      } else if (fetchInput[i] === '+') {
+        newInput += '%2B';
+      } else if (fetchInput[i] === '-') {
+        newInput += '%2D';
+      } else if (fetchInput[i] === '/') {
+        newInput += '%2F';
+      } else if (fetchInput[i] === '=') {
+        newInput += '%3D';
+      } else if (fetchInput[i] === '^') {
+        newInput += '%5E';
+      } else {
+        newInput += fetchInput[i];
+      }
+    }
+
+    setSanitizedInput(newInput);
+    fetching(newInput)
+  }
+
+  const fetching = (fetchedInput) => {
+    if (fetchedInput === '') {
+      console.log('I\'m blank');
+      const inputEl = document.getElementById('outlined-basic');
+      inputEl.focus();
+      inputEl.setSelectionRange(0, 0);
+      setInput('');
+    } else {     
+      fetch(`${FACTORURL}/${fetchedInput}`, requestOptions)
+      .then(response => response.text())
+      .then(result => {
+        result = JSON.parse(result);
+        setAnswer(result.result);
+      });
+    }
+  }
+
+  const handleOnchange = (event) => {
+    event.preventDefault();
+    setInput(event.target.value);
+  }
+
+  const handleSubmit = () => {
+    if (input !== '') {
+      sanitizeInput(input);
+    } else {
+      console.log('I\'m empty');
+    }
+  }
+
+  const handleExampleClick = (event) => {
+    event.preventDefault();
+    setInput(event.target.value);
+  }
+
   return (
     <div className="App">
       <CssBaseline />
       <AppBar
         position="static"
-        color="default"
-        elevation={0}
-        sx={{ borderBottom: '1px solid lightgray' }}
+        sx={{ background: 'black' }}
       >
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Characters Inc
+        <Container maxWidth="md">
+          <Typography 
+            variant="h3"
+            component="h2" 
+            sx={{
+              fontWeight: 'bold',
+              padding: '20px 0',
+              fontFamily: 'Poppins'
+            }}>Factorboy
           </Typography>
-          <Button 
-            href="#" 
-            variant="outlined" 
-            sx={{ my: 1, mx: 1.5 }}
-            onClick={() => alert("Boop!")}
-          >
-            Button
-          </Button>
-        </Toolbar>
+        </Container>
       </AppBar>
-      <Container maxWidth="md" sx={{ my: 4}}>
-        <Typography
-          variant="h2"
-          align="center"
-          color="text.primary"
-          sx={{ py: 2}}
-        >
-          Prevalent Protagonists
-        </Typography>
-        <Typography 
-          variant="h5" 
-          align="center" 
-          color="text.secondary"
-          sx={{ mx: 10 }}
-        >
-          Hmm, seems like we're missing some of the other protagonists.
-        </Typography>
-      </Container>
-      {/* End hero unit */}
-      <Container maxWidth="lg">
-        <Grid container 
-          spacing={5} 
-          justifyContent="center"
-          alignItems="flex-start"
-        >
-          <Grid
-            item
-            xs={12}
-            md={4}
-          >
-            <Card>
-              <CardMedia
-                component="img"
-                height="350px"
-                image={"https://i.imgur.com/56chgMj.png"}
-              />
-              <CardHeader
-                title={"Miles Morales"}
-                titleTypographyProps={{ align: 'center' }}
-                sx={{ mt: 1 }}
-              />
-              <CardContent sx={{ pt: 0 }}>
-                <ul>
-                    <Typography component="li">
-                      Definitely Not Spiderman
-                    </Typography>
-                    <Typography component="li">
-                      "Lanky Puberty Boy" vibes
-                    </Typography>
-                    <Typography component="li">
-                      Can't do it on demand
-                    </Typography>
-                    <Typography component="li">
-                      Elite music taste
-                    </Typography>
-                </ul>
-              </CardContent>
-              <CardActions>
-                <Button 
-                  variant="contained"
-                  sx={{ px: 6, mx: 'auto' }}
-                  // I'm trying to use custom CSS defined in the file App.css,
-                  // but it isn't working. Why, and how can I fix it?
-                  className="characterButton"
-                >
-                  Vote
-                </Button>
-              </CardActions>
-            </Card>
+      <Container maxWidth="md" sx={{ marginBottom: '300px' }}>
+
+        <Button variant="contained" sx={{ fontWeight: 'bold', background: 'black' }}>Factor</Button>
+        <Button variant="contained" disabled sx={{ margin: '30px 5px', fontWeight: 'bold'}}>Derivative</Button>
+        <Button variant="contained" disabled sx={{ fontWeight: 'bold' }}>Integral</Button>
+
+        <Container maxWidth="md"></Container>
+        
+        <Grid container spacing={2}>
+          <Grid item xs={8}>
+            <TextField id="outlined-basic" label="Enter Equation to Factor" variant="outlined" onChange={handleOnchange} value={input} sx={{ display: 'flex' }} />
+          </Grid>
+          <Grid item xs={4}>
+            <Button variant="contained" onClick={handleSubmit} sx={{ padding: '15px 15px', fontWeight: 'bold', background: 'black' }}>Calculate</Button>
           </Grid>
         </Grid>
+
+        <Typography 
+            variant="h6" 
+            component="h2" 
+            sx={{
+              fontWeight: 'bold',
+              margin: '25px 0 15px'
+            }}>Examples (Click to Try)
+        </Typography>
+
+        <Button variant="contained" onClick={handleExampleClick} value="x^2 + 5x + 4" sx={{ padding: '5px 10px', fontWeight: 'bold', textTransform: 'lowercase', background: 'black' }}>x^2 + 5x + 4</Button>
+        <Button variant="contained" onClick={handleExampleClick} value="x^2 - 3x - 40" sx={{ margin: '0 5px', padding: '5px 10px', fontWeight: 'bold', textTransform: 'lowercase', background: 'black' }}>x^2 - 3x - 40</Button>
+        <Button variant="contained" onClick={handleExampleClick} value="x^2 + 18x + 81" sx={{ padding: '5px 10px', fontWeight: 'bold', textTransform: 'lowercase', background: 'black' }}>x^2 + 18x + 81</Button>
+
+        {
+          answer ?
+            (
+              <React.Fragment>
+                <Typography 
+                    variant="h6" 
+                    component="h2" 
+                    sx={{
+                      fontWeight: 'bold',
+                      margin: '30px 0 0',
+                    }}>Answer
+                </Typography>
+                <Typography 
+                    variant="h6" 
+                    component="h2" 
+                    sx={{
+                      fontWeight: 'bold',
+                    }}>{answer === 'nil' ? 'Equation isn\'t valid. Please try again.' : answer }
+                </Typography>
+              </React.Fragment>
+            ) : ''
+        }
+
       </Container>
+      <Typography 
+            variant="h6" 
+            component="h2" 
+            sx={{
+              fontWeight: 'bold',
+              margin: '50px 0',
+              textAlign: 'center',
+            }}><Link href="https://awllms.com" target="_blank" rel="noopener" underline="none" color="#d3d3d3" sx={{ fontSize: '1rem', '&:hover': {color: '#0080de'} }}>&copy; 2022 awllms</Link>
+      </Typography>
     </div>
   );
 }

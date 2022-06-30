@@ -1,5 +1,1 @@
-
-.characterButton {
-  /* Why doesn't this work? (See line #104 in App.js for where this class is applied) */
-  border: 5px solid red;
-}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@900&display=swap');
